@@ -31,6 +31,8 @@ public class DayTwo {
             .stream()
             .filter(report -> levelsGrowth(report) == VALID)
             .collect(Collectors.toList());
+        // (part 2) tolerate a single bad level
+
         // any two adjacent levels differ by at least one and at most three
         int totalSafeReports = (int) tmp
             .stream()
@@ -52,9 +54,6 @@ public class DayTwo {
                 previousLevel = level;
                 continue;
             }
-            if (level == previousLevel) {
-                return INVALID;
-            }
             if (!growthFound) {
                 if (level > previousLevel) {
                     isIncreasing = true;
@@ -65,10 +64,8 @@ public class DayTwo {
                 previousLevel = level;
                 continue;
             }
-            if (level > previousLevel && !isIncreasing) {
-                return INVALID;
-            }
-            if (level < previousLevel && isIncreasing) {
+            if ((level > previousLevel && !isIncreasing) ||
+                (level < previousLevel && isIncreasing)) {
                 return INVALID;
             }
             previousLevel = level;
@@ -85,7 +82,8 @@ public class DayTwo {
             return VALID;
         }
         for (int i = 0; i < report.size()-1; i++) {
-            if (Math.abs(report.get(i) - report.get(i+1)) > 3) {
+            if (Math.abs(report.get(i) - report.get(i+1)) > 3 ||
+                Math.abs(report.get(i) - report.get(i+1)) < 1) {
                 return INVALID;
             }
         }

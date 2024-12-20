@@ -16,9 +16,10 @@ public class DayThree {
 
     private void processFile(Stream<String> lines) {
         mults = lines
-            .map(line -> regexMatch(line, "mul\\(\\d{1,3},\\d{1,3}\\)"))
+            .map(line -> regexMatch(line, "mul\\(\\d{1,3},\\d{1,3}\\)|do\\(\\)|don't\\(\\)"))
             .flatMap(List::stream)
             .collect(Collectors.toList());
+        System.out.println("hello");
     }
 
     private List<String> regexMatch(String line, String regex) {
@@ -35,17 +36,28 @@ public class DayThree {
 
     public int scanMemory() {
         int totalMult = 0;
+        boolean isToMultiply = true;
 
         for (String m : mults) {
-            int multiplication = 1;
-
-            Pattern pattern = Pattern.compile("\\d{1,3}");
-            Matcher matcher = pattern.matcher(m);
-            while (matcher.find()) {
-                multiplication *= Integer.parseInt(matcher.group());
+            if (m.equals("don't()")) {
+                isToMultiply = false;
+                continue;
+            }
+            if (m.equals("do()")) {
+                isToMultiply = true;
+                continue;
             }
 
-            totalMult += multiplication;
+            if (isToMultiply && m.startsWith("mul(")) {
+                Pattern pattern = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
+                Matcher matcher = pattern.matcher(m);
+
+                if (matcher.matches()) {
+                    int x = Integer.parseInt(matcher.group(1));
+                    int y = Integer.parseInt(matcher.group(2));
+                    totalMult += x * y;
+                }
+            }
         }
 
         return totalMult;

@@ -1,14 +1,12 @@
 package com.mycompany.daytwo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DayTwo {
-    private static final int INVALID = 0;
-    private static final int VALID = 1;
-
     private List<List<Integer>> listOfReports;
 
     public DayTwo(Stream<String> lines) {
@@ -26,68 +24,46 @@ public class DayTwo {
     }
 
     public int findTotalSafeReports() {
-        // the levels are either all increasing or all decreasing
-        var tmp = listOfReports
-            .stream()
-            .filter(report -> levelsGrowth(report) == VALID)
-            .collect(Collectors.toList());
-        // (part 2) tolerate a single bad level
+        int safeReports = 0;
 
-        // any two adjacent levels differ by at least one and at most three
-        int totalSafeReports = (int) tmp
-            .stream()
-            .filter(report -> controlledGrowth(report) == VALID)
-            .count();
-        return totalSafeReports;
-    }
+        for (int i = 0; i < listOfReports.size(); i++) {
+            var report = listOfReports.get(i);
 
-    /*
-     * Check if all levels are increasing or decreasing
-     * Returns int VALID or INVALID
-     */
-    private int levelsGrowth(List<Integer> report) {
-        boolean isIncreasing = true; // assumption made
-        boolean growthFound = false; // the boolean above can't be changed if this is true
-        int previousLevel = Integer.MIN_VALUE;
-        for (int level : report) {
-            if (previousLevel == Integer.MIN_VALUE) {
-                previousLevel = level;
-                continue;
+            if (isReportSafe(report)) {
+                safeReports++;
             }
-            if (!growthFound) {
-                if (level > previousLevel) {
-                    isIncreasing = true;
-                } else {
-                    isIncreasing = false;
+            else {
+                // problem dampener
+                for (int j = 0; j < report.size(); j++) {
+                    var tmp = new ArrayList<>(report); // does this pass a copy or reference?
+                    
+                    tmp.remove(j);
+                    if (isReportSafe(tmp)) {
+                        safeReports++;
+                        break;
+                    }
                 }
-                growthFound = true;
-                previousLevel = level;
-                continue;
+
             }
-            if ((level > previousLevel && !isIncreasing) ||
-                (level < previousLevel && isIncreasing)) {
-                return INVALID;
-            }
-            previousLevel = level;
         }
-        return VALID;
+
+        return safeReports;
     }
 
-    /*
-     * Check if two adjacent levels differ by at least one and at most three
-     * Returns int VALID or INVALID
-     */
-    private int controlledGrowth(List<Integer> report) {
-        if (report.size() < 2) {
-            return VALID;
+    private boolean isReportSafe(List<Integer> report) {
+        if (report.size() < 2) return true;
+
+        boolean isIncreasing = report.get(1) > report.get(0);
+
+        for (int i = 1; i < report.size(); i++) {
+            int diff = Math.abs(report.get(i) - report.get(i-1));
+
+            if (diff < 1 || diff > 3) return false;
+            if (report.get(i) > report.get(i-1) && !isIncreasing) return false;
+            if (report.get(i) < report.get(i-1) && isIncreasing) return false;
         }
-        for (int i = 0; i < report.size()-1; i++) {
-            if (Math.abs(report.get(i) - report.get(i+1)) > 3 ||
-                Math.abs(report.get(i) - report.get(i+1)) < 1) {
-                return INVALID;
-            }
-        }
-        return VALID;
+
+        return true;
     }
     
 }

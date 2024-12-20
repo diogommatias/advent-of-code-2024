@@ -6,16 +6,16 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import com.mycompany.dayone.DayOne;
+import com.mycompany.daytwo.DayTwo;
 
 public class Main {
 
     public static void main(String[] args) {
-        Path path = Path.of("advent-of-code\\src\\main\\java\\com\\mycompany\\dayone\\input.txt");
+        Path path = Path.of("advent-of-code\\src\\main\\java\\com\\mycompany\\daytwo\\input.txt");
         
         try (Stream<String> lines = readFile(path)) {
-            var dayOne = new DayOne(lines);
-            System.out.printf("Total distance: %d\n", dayOne.findTotalDistance());  
-            System.out.printf("Total similarity score: %d\n", dayOne.findSimilarityScore());
+            var day = new DayTwo(lines);
+            System.out.println(day.findTotalSafeReports());
         } catch (IOException e) {
             System.err.format("IOException %s\n", e);
         }
